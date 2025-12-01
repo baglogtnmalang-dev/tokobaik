@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Toko BALO Keren - Beranda</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header style="padding: 10px 0;">
+            <div style="text-align: center; margin-bottom: 10px;">
+                <h1 style="margin: 0;">🛒 Toko BALO Keren</h1>
+            </div>
+            
+            <nav>
+                <a href="{{ url_for('cart') }}">Keranjang ({{ cart_item_count }})</a>
+                
+                {% if current_user.is_authenticated %}
+                    <span>Halo, <b>{{ current_user.email }}</b>!</span>
+                    <a href="{{ url_for('my_orders') }}">Pesanan Saya</a>
+                    
+                    {% if current_user.is_admin %}
+                        <a href="{{ url_for('add_product') }}" style="color: green;">Tambah Produk</a>
+                        <a href="{{ url_for('admin_orders') }}">Admin Orders</a>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('logout') }}" style="color: red;">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('signup') }}">Daftar</a>
+                {% endif %}
+            </nav>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>Daftar Produk</h2>
+        {% if not products %}
+            <p>Belum ada produk yang tersedia.</p>
+        {% endif %}
+
+        <div class="product-list">
+            {% for product in products %}
+            <div class="product-card">
+                <h3>{{ product.name }}</h3>
+		<img src="{{ url_for('static', filename='product_images/' + product.image_file) }}" alt="{{ product.name }}">
+                <p><strong>Harga:</strong> Rp {{ "{:,.0f}".format(product.price) }}</p>
+                <p><strong>Deskripsi:</strong> {{ product.description }}</p>
+                <p><strong>Stok Tersedia:</strong> {{ product.stock }}</p>
+
+		{% if current_user.is_authenticated and current_user.is_admin %}
+        <a href="{{ url_for('edit_product', product_id=product.id) }}" style="background-color: orange; color: white; padding: 8px; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 10px;">
+            Edit Produk
+        </a>
+    {% endif %}
+                {% if product.stock > 0 %}
+                    <a href="{{ url_for('add_to_cart', product_id=product.id) }}" style="background-color: green; color: white; padding: 10px; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 10px;">
+                        Masukkan Keranjang
+                    </a>
+                {% else %}
+                    <p style="color: red;">Stok Habis</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</body>
+
+</html>

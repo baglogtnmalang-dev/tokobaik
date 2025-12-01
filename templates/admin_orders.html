@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Orders</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dashboard Admin 🛡️</h1>
+            <p><a href="{{ url_for('index') }}">← Kembali ke Toko</a> | <a href="{{ url_for('add_product') }}">Tambah Produk Baru</a></p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>Semua Pesanan</h2>
+
+        {% if not orders %}
+            <p>Belum ada pesanan yang masuk.</p>
+        {% endif %}
+
+        {% for item in orders %}
+        <div class="order-card">
+            <h3>Pesanan #{{ item.id }} ({{ item.order_date.strftime('%d %b %Y, %H:%M') }})</h3>
+            <p><strong>Customer:</strong> {{ item.customer_name }}</p>
+            <p><strong>Nomor HP:</strong> {{ item.phone_number }}</p>
+            
+            <p style="font-weight: bold; color: green;">Total Bayar Unik: Rp {{ "{:,.0f}".format(item.total_unique_amount) }}</p>
+            <p><strong>Metode Bayar:</strong> {{ item.payment_method }}</p>
+            
+            <h4>Detail Item:</h4>
+            <ul>
+{% for item in item.order_items %}
+    <li>{{ item.name }} ({{ item.quantity }}x) - Rp {{ "{:,.0f}".format(item.price * item.quantity) }}</li>
+{% endfor %}
+</ul>
+
+            
+            <hr>
+            
+            <p><strong>Status Saat Ini:</strong> 
+                <span style="font-weight: bold; color: {{ 'green' if 'Lunas' in item.payment_status or 'Dikirim' in item.payment_status else 'orange' }};">
+                    {{ item.payment_status }}
+                </span>
+            </p>
+
+            <form method="POST" action="{{ url_for('update_order_status', order_id=item.id) }}" style="margin-top: 10px;">
+                <label for="new_status">Ubah Status:</label>
+                <select name="new_status" id="new_status">
+                    <option value="Menunggu Pembayaran" {% if item.payment_status == 'Menunggu Pembayaran' %}selected{% endif %}>Menunggu Pembayaran</option>
+                    <option value="Pembayaran Diterima" {% if item.payment_status == 'Pembayaran Diterima' %}selected{% endif %}>Pembayaran Diterima</option>
+                    <option value="Sedang Diproses" {% if item.payment_status == 'Sedang Diproses' %}selected{% endif %}>Sedang Diproses</option>
+                    <option value="Dikirim" {% if item.payment_status == 'Dikirim' %}selected{% endif %}>Dikirim</option>
+                    <option value="Selesai (Lunas)" {% if item.payment_status == 'Selesai (Lunas)' %}selected{% endif %}>Selesai (Lunas)</option>
+                    <option value="Dibatalkan" {% if item.payment_status == 'Dibatalkan' %}selected{% endif %}>Dibatalkan</option>
+                </select>
+                <button type="submit" style="background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Update</button>
+            </form>
+        </div>
+        {% endfor %}
+
+    </div>
+</body>
+</html>

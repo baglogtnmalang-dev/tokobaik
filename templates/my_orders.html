@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pesanan Saya</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📦 Pesanan Saya</h1>
+            <p><a href="{{ url_for('index') }}">← Kembali ke Toko</a></p>
+        </header>
+<div class="qris-info" style="border: 1px solid #4CAF50; padding: 20px; margin-bottom: 20px; border-radius: 8px; text-align: center; background-color: #e8f5e9;">
+    <h2>Metode Pembayaran Umum (QRIS)</h2>
+    <p>Anda dapat melakukan pembayaran via QRIS untuk semua jenis pembayaran untuk sementara ini.</p>
+    <img 
+        src="{{ url_for('static', filename='images/qris_statis.png') }}" 
+        alt="Kode QRIS Pembayaran Umum" 
+        style="max-width: 250px; height: auto; margin: 15px 0; border: 5px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
+    >
+    <p style="font-size: 0.9em; color: #555;">**Catatan:** Pastikan Anda memasukkan **Jumlah Bayar Unik** yang benar saat melakukan transfer via QRIS.</p>
+</div>
+
+	{% with messages = get_flashed_messages(with_categories=true) %}
+    {% endwith %}
+
+{% if payment_info.code %}
+    <div class="payment-instruction">
+        <h3>🎉 Pesanan Berhasil Dibuat!</h3>
+        <p>Kode Transaksi Anda: <strong>#{{ payment_info.code }}</strong></p>
+        <p>Mohon transfer sesuai nominal di bawah untuk verifikasi otomatis:</p>
+        <div style="background-color: #fce8e8; border: 1px solid #f99; padding: 15px; border-radius: 8px; margin-top: 10px; text-align: center;">
+            <p style="margin: 0; font-size: 1.2em;">
+                <strong>TOTAL BAYAR UNIK:</strong> 
+                <span style="color: red; font-size: 1.5em; font-weight: bold;">
+                    Rp {{ "{:,.0f}".format(payment_info.amount) }}
+                </span>
+            </p>
+            <p style="margin-top: 10px; font-size: 1em; color: #555;">
+                *Pastikan 3 digit terakhir Anda adalah 
+                <span style="font-weight: bold; color: red;">{{ payment_info.suffix }}</span> 
+                untuk mempermudah verifikasi.
+            </p>
+        </div>
+        <p style="margin-top: 15px;">Status pesanan Anda saat ini adalah: **Menunggu Pembayaran**.</p>
+    </div>
+
+
+    <hr>
+{% endif %}
+        {% if not orders %}
+            <p>Anda belum memiliki pesanan.</p>
+        {% endif %}
+
+        {% for order in orders %}
+        <div class="order-card">
+            <h3>Pesanan #{{ order.id }} - {{ order.order_date.strftime('%d %b %Y, %H:%M') }}</h3>
+            
+            <p>
+                <strong>Status Saat Ini:</strong> 
+                <span style="font-weight: bold; color: {{ 'green' if 'Lunas' in order.payment_status or 'Dikirim' in order.payment_status else 'orange' }};">
+                    {{ order.payment_status }}
+                </span>
+            </p>
+            <p style="font-weight: bold; color: green;">Total Bayar Unik: Rp {{ "{:,.0f}".format(order.total_unique_amount) }}</p>
+
+            <p><strong>Total Bayar:</strong> Rp {{ "{:,.0f}".format(order.total_amount) }}</p>
+            <p><strong>Metode Pembayaran:</strong> {{ order.payment_method }}</p>
+
+            <h4>Detail Item:</h4>
+            <ul>
+                {% for order in orders %}
+    <ul>
+    {% for item in order.order_items %}
+        <li>{{ item.name }} ({{ item.quantity }}x) - Rp {{ "{:,.0f}".format(item.price * item.quantity) }}</li>
+    {% endfor %}
+    </ul>
+{% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+
+    </div>
+</body>
+
+
+</html>

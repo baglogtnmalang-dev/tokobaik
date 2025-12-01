@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Keranjang Belanja</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Keranjang Belanja Anda</h1>
+            <p><a href="{{ url_for('index') }}">← Kembali ke Toko</a></p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% if not cart_items %}
+            <p>Keranjang Anda kosong.</p>
+        {% else %}
+            {% for item in cart_items %}
+            <div class="cart-item">
+                <h3>{{ item.name }}</h3>
+                <p>Harga Satuan: Rp {{ "{:,.0f}".format(item.price) }}</p>
+                <p>Subtotal: Rp {{ "{:,.0f}".format(item.price * item.quantity) }}</p>
+
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <span style="margin-right: 10px;">Kuantitas:</span>
+                    <form action="{{ url_for('update_cart_quantity', product_id=item.id) }}" method="POST" style="display: flex; align-items: center;">
+                        <button type="submit" name="action" value="decrease" style="padding: 5px 10px; cursor: pointer; background: #f4f4f4; border: 1px solid #ccc; border-radius: 4px 0 0 4px;">-</button>
+                        
+                        <span style="padding: 5px 15px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;">
+                            {{ item.quantity }}
+                        </span>
+                        
+                        <button type="submit" name="action" value="increase" style="padding: 5px 10px; cursor: pointer; background: #f4f4f4; border: 1px solid #ccc; border-radius: 0 4px 4px 0;">+</button>
+                    </form>
+                </div>
+
+                <a href="{{ url_for('remove_from_cart', product_id=item.id) }}" style="color: red; text-decoration: none;">Hapus Item</a>
+            </div>
+            {% endfor %}
+
+            <h2>Total Belanja: Rp {{ "{:,.0f}".format(total_price) }}</h2>
+            <a href="{{ url_for('checkout') }}" style="background-color: #007bff; color: white; padding: 15px 25px; border-radius: 4px; text-decoration: none; display: inline-block; margin-top: 20px;">
+                Lanjut ke Pembayaran
+            </a>
+        {% endif %}
+    </div>
+</body>
+</html>
