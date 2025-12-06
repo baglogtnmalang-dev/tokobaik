@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Informasi Pembayaran QRIS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .qris-container {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 2px solid #6a0dad; /* Border ungu */
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p><a href="{{ url_for('index') }}">← Kembali ke Toko</a></p>
+        
+        <div class="qris-container">
+            <h1>Scan KODE QRIS KAMI 💜</h1>
+            <p>Silakan gunakan aplikasi bank/dompet digital Anda untuk memindai kode di bawah ini:</p>
+            
+            <img src="{{ url_for('static', filename='qris_image.png') }}" alt="Kode QRIS" style="max-width: 80%; height: auto; margin-top: 20px;">
+            <p style="font-size: small; margin-top: 15px;">*Pastikan nama merchant adalah Wakuraa.</p>
+        </div>
+        
+    </div>
+</body>
+</html>

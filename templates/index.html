@@ -14,7 +14,9 @@
             
             <nav>
                 <a href="{{ url_for('cart') }}">Keranjang ({{ cart_item_count }})</a>
-                
+                <a href="{{ url_for('qris_info') }}" style="color: #6a0dad; font-weight: bold; margin-right: 15px;">
+        KODE QRIS KAMI 💜
+    </a>
                 {% if current_user.is_authenticated %}
                     <span>Halo, <b>{{ current_user.email }}</b>!</span>
                     <a href="{{ url_for('my_orders') }}">Pesanan Saya</a>
@@ -30,25 +32,10 @@
                     <a href="{{ url_for('login') }}">Login</a>
                     <a href="{{ url_for('signup') }}">Daftar</a>
                 {% endif %}
+				
+				
             </nav>
         </header>
-	<div class="payment-info-static" style="margin: 20px 0; padding: 15px; border: 2px solid #00a651; border-radius: 8px; background-color: #e6ffe6; text-align: center;">
-            <h2 style="color: #008000; margin-top: 0;">Metode Pembayaran</h2>
-            <p style="font-size: 1.1em; font-weight: bold;">Metode pembayaran saat ini adalah: <span style="color: #00a651;">QRIS saja.</span></p>
-            <p style="margin-top: 15px;">Berikut Kode QRIS untuk pembayaran nantinya:</p>
-            
-            <div style="margin: 10px auto;">
-                <img src="{{ url_for('static', filename='images/qris_statis.png') }}" 
-                     alt="QRIS Static Payment Code" 
-                     width="180" 
-                     style="border: 1px solid #ddd; padding: 5px; border-radius: 4px; display: block; margin: 0 auto;">
-            </div>
-            <small style="display: block; margin-top: 10px; color: #555;">
-    <span style="color: red; font-weight: bold;">
-        *Saat checkout, masukkan nominal unik yang tertera untuk verifikasi otomatis.
-    </span>
-</small>
-        </div>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
