@@ -2,7 +2,7 @@ Flask
 Flask-SQLAlchemy
 Flask-Login
 Werkzeug
-gunicorn
+gunicorn==23.0.0
 psycopg2-binary
 waitress
 # Dummy change to force new deploy
