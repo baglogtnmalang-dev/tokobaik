@@ -9,6 +9,8 @@ from werkzeug.utils import secure_filename
 from flask import make_response 
 import csv 
 from io import StringIO
+from flask_mail import Mail
+from threading import Thread
 
 # ===============================================
 # 1. SETUP KONFIGURASI APLIKASI
@@ -22,6 +24,18 @@ toko_app.config['SECRET_KEY'] = 'kunci_rahasia_dan_aman_sekali_toko_balokeren'
 # Ambil DATABASE_URL dari variabel lingkungan (untuk Render/PostgreSQL)
 # Jika tidak ada, gunakan SQLite lokal sebagai fallback
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///shop.db')
+
+# --- KONFIGURASI FLASK-MAIL ---
+toko_app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER')
+toko_app.config['MAIL_PORT'] = os.environ.get('MAIL_PORT')
+# Konversi string 'True' menjadi boolean True
+toko_app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS') == 'True' 
+toko_app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+toko_app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+toko_app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
+
+# Inisiasi objek Mail
+mail = Mail(toko_app)
 
 # Khusus untuk Render/Heroku dengan PostgreSQL (psycopg2)
 # Ini penting untuk mengganti skema 'postgres://' (lama) menjadi 'postgresql://' (standar SQLAlchemy)
@@ -128,6 +142,24 @@ def cart_item_count_processor():
     count = sum(item['quantity'] for item in session.get('cart', []))
     return dict(cart_item_count=count)
 
+# Fungsi helper yang berjalan di background
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+# Fungsi utama yang akan dipanggil di route Anda
+def send_email(subject, recipients, html_body):
+    from flask_mail import Message # Import Message di sini
+
+    # Buat objek pesan
+    msg = Message(subject, recipients=recipients, html=html_body)
+    
+    # Ambil instance aplikasi saat ini
+    app = toko_app
+    
+    # Jalankan pengiriman email di thread terpisah
+    Thread(target=send_async_email, args=(app, msg)).start()
+
 # ===============================================
 # 4. RUTE & LOGIKA APLIKASI
 # ===============================================
@@ -158,11 +190,26 @@ def signup():
         
         db.session.add(new_user)
         db.session.commit()
+
+# --- PANGGIL FUNGSI KIRIM EMAIL ---
+        subject = 'Selamat Datang di Toko Balo Keren!'
+        recipients = [email] # Kirim ke email yang baru didaftarkan
+        html_body = f"""
+            <h1>Pendaftaran Berhasil!</h1>
+            <p>Halo {email},</p>
+            <p>Terima kasih telah bergabung di Toko Balo Keren. Anda kini dapat mulai berbelanja.</p>
+            <p>Salam hangat,<br>Tim Toko Balo Keren</p>
+        """
+        
+        send_email(subject, recipients, html_body)
+        # ---------------------------------
         
         flash('Akun berhasil dibuat! Silakan login.', 'success')
         return redirect(url_for('login'))
+        
     return render_template('signup.html')
-
+        
+        
 
 # --- RUTE: LOGIN ---
 @toko_app.route('/login', methods=['GET', 'POST'])
