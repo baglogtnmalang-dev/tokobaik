@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Daftar User</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dashboard Admin 🛡️</h1>
+            <p><a href="{{ url_for('index') }}">← Kembali ke Toko</a> | <a href="{{ url_for('admin_orders') }}">Lihat Pesanan</a></p>
+        </header>
+
+        <h2>Total Pengguna Terdaftar: {{ total_users }}</h2>
+
+        {% if users %}
+            {% for user in users %}
+                <div class="user-card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 6px;">
+                    <p><strong>ID:</strong> {{ user.id }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Nomor HP:</strong> {{ user.phone_number if user.phone_number else 'N/A' }}</p>
+                    <p><strong>Status:</strong> {{ 'ADMIN' if user.is_admin else 'Customer Biasa' }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Tidak ada pengguna yang ditemukan (kecuali diri Anda sendiri).</p>
+        {% endif %}
+    </div>
+</body>
+</html>

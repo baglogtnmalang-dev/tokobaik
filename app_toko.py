@@ -514,7 +514,25 @@ def admin_orders():
         })
 
     return render_template('admin_orders.html', orders=parsed_orders)
+# app_toko.py (Tambahkan di bagian rute Admin)
 
+# --- RUTE: DAFTAR USER (ADMIN) ---
+@toko_app.route('/admin/users')
+@login_required
+def admin_users():
+    # Pengecekan Wajib: Pastikan hanya Admin yang bisa akses
+    if not is_user_admin():
+        flash('Akses Ditolak: Hanya Admin yang dapat melihat daftar user.', 'danger')
+        return redirect(url_for('index'))
+    
+    # Hitung total user
+    total_users = User.query.count()
+    
+    # Ambil semua user, diurutkan, dan filter Admin yang sedang login agar tidak tampil dua kali
+    # (Opsional: Anda bisa hapus filter jika ingin melihat semua user termasuk diri sendiri)
+    users = User.query.filter(User.id != current_user.id).order_by(User.id.desc()).all()
+    
+    return render_template('admin_users.html', total_users=total_users, users=users)
 
 # --- RUTE: UPDATE KETERANGAN PER-ITEM KERANJANG ---
 @toko_app.route('/update_item_keterangan/<int:product_id>', methods=['POST'])
