@@ -6,7 +6,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-
+from flask import make_response 
+import csv 
+from io import StringIO
 
 # ===============================================
 # 1. SETUP KONFIGURASI APLIKASI
@@ -533,6 +535,49 @@ def admin_users():
     users = User.query.filter(User.id != current_user.id).order_by(User.id.desc()).all()
     
     return render_template('admin_users.html', total_users=total_users, users=users)
+
+# --- RUTE BARU: EKSPOR DATA USER KE CSV ---
+@toko_app.route('/admin/users/export', methods=['GET'])
+@login_required
+def export_users_csv():
+    # 1. Pengecekan Wajib Admin
+    if not is_user_admin():
+        return "Akses Ditolak", 403
+
+    # 2. Query Data User
+    # Ambil semua user (termasuk admin)
+    users = User.query.order_by(User.id.asc()).all()
+    
+    # 3. Buat objek StringIO untuk menampung data CSV
+    si = StringIO()
+    cw = csv.writer(si)
+
+    # 4. Tulis Header (Nama Kolom)
+    header = ['ID', 'Email', 'Nomor HP', 'Status Admin']
+    cw.writerow(header)
+
+    # 5. Tulis Baris Data
+    for user in users:
+        # Konversi status boolean is_admin menjadi 'Ya' atau 'Tidak'
+        admin_status = 'Ya' if user.is_admin else 'Tidak'
+        
+        row = [
+            user.id,
+            user.email,
+            user.phone_number if user.phone_number else '', # Isi kosong jika None
+            admin_status
+        ]
+        cw.writerow(row)
+
+    # 6. Buat Response File
+    output = si.getvalue()
+    response = make_response(output)
+    
+    # Tambahkan header agar browser mendownload sebagai file CSV
+    response.headers["Content-Disposition"] = "attachment; filename=daftar_user_toko_baiko.csv"
+    response.headers["Content-type"] = "text/csv"
+    
+    return response
 
 # --- RUTE: UPDATE KETERANGAN PER-ITEM KERANJANG ---
 @toko_app.route('/update_item_keterangan/<int:product_id>', methods=['POST'])

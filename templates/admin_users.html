@@ -4,28 +4,78 @@
     <meta charset="UTF-8">
     <title>Admin - Daftar User</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* CSS Sederhana untuk Tabel */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .export-btn {
+            background-color: #28a745; /* Warna hijau */
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Dashboard Admin 🛡️</h1>
-            <p><a href="{{ url_for('index') }}">← Kembali ke Toko</a> | <a href="{{ url_for('admin_orders') }}">Lihat Pesanan</a></p>
-        </header>
+        <h1>Dashboard Admin - Daftar Pengguna 👤</h1>
+        <p>
+            <a href="{{ url_for('index') }}">← Kembali ke Toko</a> | 
+            <a href="{{ url_for('admin_orders') }}">Lihat Pesanan</a>
+        </p>
 
         <h2>Total Pengguna Terdaftar: {{ total_users }}</h2>
 
+        <a href="{{ url_for('export_users_csv') }}" class="export-btn">
+            📥 Ekspor ke CSV
+        </a>
+
         {% if users %}
-            {% for user in users %}
-                <div class="user-card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 6px;">
-                    <p><strong>ID:</strong> {{ user.id }}</p>
-                    <p><strong>Email:</strong> {{ user.email }}</p>
-                    <p><strong>Nomor HP:</strong> {{ user.phone_number if user.phone_number else 'N/A' }}</p>
-                    <p><strong>Status:</strong> {{ 'ADMIN' if user.is_admin else 'Customer Biasa' }}</p>
-                </div>
-            {% endfor %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Nomor HP</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone_number if user.phone_number else 'N/A' }}</td>
+                    <td>
+                        {{ 'ADMIN' if user.is_admin else 'Customer' }}
+                        {% if user.is_admin %} 🛡️ {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         {% else %}
-            <p>Tidak ada pengguna yang ditemukan (kecuali diri Anda sendiri).</p>
+            <p>Tidak ada pengguna yang ditemukan selain diri Anda sendiri.</p>
         {% endif %}
+
     </div>
 </body>
 </html>
