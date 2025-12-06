@@ -487,6 +487,12 @@ def checkout():
         
     return render_template('checkout.html', cart_items=cart_items, total_price=total_price)
 
+# --- RUTE: TAMPILAN KODE QRIS ---
+@toko_app.route('/qris-info')
+def qris_info():
+    # Route ini hanya menampilkan template HTML baru
+    return render_template('qris_info.html')
+
 
 # --- RUTE: PESANAN SAYA (USER) ---
 @toko_app.route('/my_orders')
