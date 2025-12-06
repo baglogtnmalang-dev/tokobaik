@@ -1,0 +1,39 @@
+# =========================================
+# Python & Flask
+# =========================================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Virtual environment
+venv/
+env/
+
+# Instance folder (Flask default untuk config & uploads)
+instance/
+
+# =========================================
+# Deployment / Render
+# =========================================
+# Log files
+*.log
+
+# Gunicorn / uwsgi
+*.pid
+
+# =========================================
+# IDE / Editor
+# =========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================================
+# OS generated files
+# =========================================
+.DS_Store
+Thumbs.db
