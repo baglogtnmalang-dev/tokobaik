@@ -6,3 +6,4 @@ gunicorn
 psycopg2-binary
 waitress
 # Dummy change to force new deploy
+echo "# Final check before deployment" >> requirements.txt
