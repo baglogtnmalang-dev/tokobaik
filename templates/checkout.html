@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout & Pembayaran</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Konfirmasi Checkout</h1>
+            <p><a href="{{ url_for('cart') }}">← Kembali ke Keranjang</a></p>
+        </header>
+
+        {% if not cart_items %}
+            <p>Keranjang Anda kosong. <a href="{{ url_for('index') }}">Mulai belanja!</a></p>
+        {% else %}
+            <h2>Detail Pesanan</h2>
+            <ul>
+                {% for item in cart_items %}
+                    <li>{{ item.name }} ({{ item.quantity }}x) - Rp {{ "{:,.0f}".format(item.price * item.quantity) }}</li>
+                {% endfor %}
+            </ul>
+
+            <h3>Total Pembayaran: Rp {{ "{:,.0f}".format(total_price) }}</h3>
+
+            <h2>Pilih Metode Pembayaran</h2>
+            <form method="POST">
+                <input type="radio" id="qris_statis" name="payment_method" value="QRIS Statis" required>
+        	<label for="qris_statis" style="font-weight: bold;">QRIS (Pindai & Bayar Manual)</label>
+
+                <input type="radio" id="transfer" name="payment_method" value="Bank Transfer" required>
+                <label for="transfer">Transfer Bank (BCA/Mandiri)</label><br><br>
+
+                <input type="radio" id="ewallet" name="payment_method" value="E-Wallet" required>
+                <label for="ewallet">E-Wallet (Dana/Gopay)</label><br><br>
+
+                <button type="submit" style="background-color: green; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+                    Konfirmasi Pesanan
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</body>
+</html>

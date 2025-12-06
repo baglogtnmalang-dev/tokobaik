@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Keranjang Belanja</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Keranjang Belanja Anda</h1>
+            <p><a href="{{ url_for('index') }}">← Kembali ke Toko</a></p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% if not cart_items %}
+            <p>Keranjang Anda kosong.</p>
+        {% else %}
+            {% for item_index in range(cart_items|length) %}
+            {% set item = cart_items[item_index] %}
+            <div class="cart-item">
+                <h3>{{ item.name }}</h3>
+                <p>Harga Satuan: Rp {{ "{:,.0f}".format(item.price) }}</p>
+                <p>Subtotal: Rp {{ "{:,.0f}".format(item.price * item.quantity) }}</p>
+                
+                <form action="{{ url_for('update_item_keterangan', product_id=item.id) }}" method="POST" style="margin-top: 10px; border: 1px dashed #ddd; padding: 10px; border-radius: 4px; background-color: #fcfcfc;">
+                    <input type="hidden" name="item_index" value="{{ item_index }}"> 
+                    
+                    <label for="keterangan_{{ item_index }}" style="font-weight: bold; display: block; margin-bottom: 5px; color: #ff9900;">
+                        📝 Keterangan Item:
+                    </label>
+                    <input type="text" id="keterangan_{{ item_index }}" name="item_keterangan" 
+                           value="{{ item.get('keterangan') | default('', True) }}" 
+                           placeholder="Cantumkan warna dan ukuran di sini. Cth: Merah, XL" 
+                           style="padding: 5px; width: calc(100% - 110px); border: 1px solid #ccc; border-radius: 4px; margin-right: 5px;">
+                    
+                    <button type="submit" style="background-color: orange; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">
+                        Simpan
+                    </button>
+                    
+                    <small style="display: block; margin-top: 5px; color: #777;">Keterangan saat ini: **{{ item.get('keterangan') | default('Belum diisi', True) }}**</small>
+                </form>
+                <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 10px;">
+                    <span style="margin-right: 10px;">Kuantitas:</span>
+                    <form action="{{ url_for('update_cart_quantity', product_id=item.id) }}" method="POST" style="display: flex; align-items: center;">
+                        <button type="submit" name="action" value="decrease" style="padding: 5px 10px; cursor: pointer; background: #f4f4f4; border: 1px solid #ccc; border-radius: 4px 0 0 4px;">-</button>
+                        <span style="padding: 5px 15px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;">
+                            {{ item.quantity }}
+                        </span>
+                        <button type="submit" name="action" value="increase" style="padding: 5px 10px; cursor: pointer; background: #f4f4f4; border: 1px solid #ccc; border-radius: 0 4px 4px 0;">+</button>
+                    </form>
+                </div>
+
+                <a href="{{ url_for('remove_from_cart', product_id=item.id) }}" style="color: red; text-decoration: none;">Hapus Item</a>
+            </div>
+            {% endfor %} <-- PENUTUP LOOP
+
+            <h2>Total Belanja: Rp {{ "{:,.0f}".format(total_price) }}</h2>
+            <a href="{{ url_for('checkout') }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                Lanjut ke Checkout
+            </a>
+        {% endif %} <-- PENUTUP IF UTAMA
+    </div>
+</body>
+</html>

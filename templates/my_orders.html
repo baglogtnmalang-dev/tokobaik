@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pesanan Saya</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📦 Pesanan Saya</h1>
+            <p><a href="{{ url_for('index') }}">← Kembali ke Toko</a></p>
+            
+            <div class="qris-display-static" style="margin: 15px 0; padding: 10px; border: 1px dashed #ccc; background-color: #f9f9f9; text-align: center;">
+                <p style="margin-bottom: 5px; font-weight: bold;">Pindai QRIS ini untuk Pembayaran Manual:</p>
+                <img src="{{ url_for('static', filename='images/qris_statis.png') }}" alt="QRIS Static Payment Code" width="150" style="border: 1px solid #ddd; padding: 5px; border-radius: 4px;">
+                <small style="display: block; margin-top: 10px; color: #555;"><span style="color: green; font-weight: bold;">*Gunakan nominal unik yang tertera di bawah untuk verifikasi otomatis.</span></small>
+            </div>
+            </header>
+	{% with messages = get_flashed_messages(with_categories=true) %}
+    {% endwith %}
+
+{% if payment_info.code %}
+    <div class="payment-instruction">
+        <h2>🎉 Pesanan Berhasil Dibuat!</h2>
+        <p>Kode Transaksi Anda: <strong>#{{ payment_info.code }}</strong></p>
+        <p>Mohon transfer sesuai nominal di bawah untuk verifikasi otomatis:</p>
+        <div style="background-color: #fce8e8; border: 1px solid #f99; padding: 15px; border-radius: 8px; margin-top: 10px; text-align: center;">
+            <p style="margin: 0; font-size: 1.2em;">
+                <strong>TOTAL BAYAR UNIK:</strong> 
+                <span style="color: red; font-size: 1.5em; font-weight: bold;">
+                    Rp {{ "{:,.0f}".format(payment_info.amount) }}
+                </span>
+            </p>
+            <p style="margin-top: 10px; font-size: 1em; color: #555;">
+                *Pastikan 3 digit terakhir Anda adalah 
+                <span style="font-weight: bold; color: red;">{{ payment_info.suffix }}</span> 
+                untuk mempermudah verifikasi.
+            </p>
+        </div>
+        <p style="margin-top: 15px;">Status pesanan Anda saat ini adalah: **Menunggu Pembayaran**.</p>
+    </div>
+    <hr>
+{% endif %}
+        {% if not orders %}
+            <p>Anda belum memiliki pesanan.</p>
+        {% endif %}
+
+        {% for order in orders %}
+        <div class="order-card">
+            <h3>Pesanan #{{ order.id }} - {{ order.order_date.strftime('%d %b %Y, %H:%M') }}</h3>
+            {% if order.user_keterangan %}
+            <div style="margin: 10px 0; padding: 10px; border: 1px dashed #ccc; background-color: #f9f9f9; border-radius: 4px;">
+                <strong>Catatan Pesanan dari Anda:</strong>
+                <p style="white-space: pre-wrap; margin: 5px 0 0 0;">{{ order.user_keterangan }}</p>
+            </div>
+            {% endif %}
+
+            <p>
+                <strong>Status Saat Ini:</strong> 
+                <span style="font-weight: bold; color: {{ 'green' if 'Lunas' in order.payment_status or 'Dikirim' in order.payment_status else 'orange' }};">
+                    {{ order.payment_status }}
+                </span>
+            </p>
+            <p style="font-weight: bold; color: green;">Total Bayar Unik: Rp {{ "{:,.0f}".format(order.total_unique_amount) }}</p>
+
+            <p><strong>Total Bayar:</strong> Rp {{ "{:,.0f}".format(order.total_amount) }}</p>
+            <p><strong>Metode Pembayaran:</strong> {{ order.payment_method }}</p>
+
+            <h4>Detail Item:</h4>
+            <ul>
+                {% for item in order.order_items %}
+                    <li>
+                        {{ item.name }} ({{ item.quantity }}x) - Rp {{ "{:,.0f}".format(item.price * item.quantity) }}
+                        
+                        {% if item.get('keterangan') %}
+                            <small style="color: #666; display: block; margin-left: 15px; font-weight: bold;">
+                                Keterangan: {{ item.get('keterangan') }}
+                            </small>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+
+    </div>
+</body>
+
+
+</html>

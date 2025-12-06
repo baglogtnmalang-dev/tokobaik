@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Produk: {{ product.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Edit Produk: {{ product.name }}</h1>
+            <p><a href="{{ url_for('index') }}">← Kembali ke Toko</a> | <a href="{{ url_for('admin_orders') }}">Admin Orders</a></p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" enctype="multipart/form-data">
+            <label for="name">Nama Produk:</label>
+            <input type="text" id="name" name="name" value="{{ product.name }}" required><br><br>
+            
+            <label for="price">Harga (Rp):</label>
+            <input type="number" id="price" name="price" min="1" value="{{ product.price }}" required><br><br>
+            
+            <label for="stock">Stok Awal:</label>
+            <input type="number" id="stock" name="stock" min="0" value="{{ product.stock }}" required><br><br>
+            
+            <label for="description">Deskripsi:</label><br>
+            <textarea id="description" name="description" rows="4" required>{{ product.description }}</textarea><br><br>
+
+            <label for="current_image">Gambar Saat Ini:</label><br>
+            <img src="{{ url_for('static', filename='product_images/' + product.image_file) }}" 
+                 alt="{{ product.name }}" 
+                 style="max-width: 200px; height: auto; display: block; margin-bottom: 10px;"><br>
+
+            <label for="image">Ganti Gambar Produk (opsional):</label>
+            <input type="file" id="image" name="image" accept="image/*"><br><br> 
+            
+            <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+                Perbarui Produk
+            </button>
+        </form>
+
+        <form method="POST" action="{{ url_for('delete_product', product_id=product.id) }}" style="margin-top: 20px;">
+            <button type="submit" onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?')" 
+                    style="background-color: red; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+                Hapus Produk
+            </button>
+        </form>
+    </div>
+</body>
+</html>
