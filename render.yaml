@@ -1,0 +1,8 @@
+# render.yaml
+services:
+  - type: web
+    name: toko-app
+    env: python
+    buildCommand: pip install -r requirements.txt && python src/init_db.py
+    startCommand: gunicorn app_toko:toko_app
+    plan: free
