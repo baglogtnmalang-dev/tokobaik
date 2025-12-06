@@ -6,7 +6,7 @@ itsdangerous==2.2.0
 click==8.3.1
 blinker==1.9.0
 colorama==0.4.6
-
+Flask-Mail
 # Database
 SQLAlchemy==2.0.44
 Flask-SQLAlchemy==3.1.1
