@@ -15,7 +15,7 @@
         }
     </style>
 </head>
-# coba
+
 <body>
     <div class="container">
         <p><a href="{{ url_for('index') }}">← Kembali ke Toko</a></p>
@@ -23,9 +23,9 @@
         <div class="qris-container">
             <h1>Scan KODE QRIS KAMI 💜</h1>
             <p>Silakan gunakan aplikasi bank/dompet digital Anda untuk memindai kode di bawah ini:</p>
+            <p style="font-size: small; margin-top: 15px; color: #6a0dad;">*Pastikan nama merchant adalah Wakuraa, Toserba Pakaian.</p>
+            <img src="{{ url_for('static', filename='images/qris_statis.png') }}" alt="Kode QRIS" style="max-width: 80%; height: auto; margin-top: 20px;">
             
-            <img src="{{ url_for('static', filename='qris_image.png') }}" alt="Kode QRIS" style="max-width: 80%; height: auto; margin-top: 20px;">
-            <p style="font-size: small; margin-top: 15px;">*Pastikan nama merchant adalah Wakuraa.</p>
         </div>
         
     </div>
