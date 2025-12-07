@@ -11,6 +11,7 @@ import csv
 from io import StringIO
 from flask_mail import Mail
 from threading import Thread
+from zoneinfo import ZoneInfo
 
 # ===============================================
 # 1. SETUP KONFIGURASI APLIKASI
@@ -159,6 +160,16 @@ def send_email(subject, recipients, html_body):
     
     # Jalankan pengiriman email di thread terpisah
     Thread(target=send_async_email, args=(app, msg)).start()
+
+# Fungsi konversi ke WIB
+def to_wib(value):
+    if isinstance(value, datetime):
+        return value.replace(tzinfo=ZoneInfo("UTC")).astimezone(ZoneInfo("Asia/Jakarta"))
+    return value
+
+# Registrasi filter ke Jinja
+toko_app.jinja_env.filters['to_wib'] = to_wib
+
 
 # ===============================================
 # 4. RUTE & LOGIKA APLIKASI

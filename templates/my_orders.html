@@ -48,7 +48,7 @@
 
         {% for order in orders %}
         <div class="order-card">
-            <h3>Pesanan #{{ order.id }} - {{ order.order_date.strftime('%d %b %Y, %H:%M') }}</h3>
+            <h3>Pesanan #{{ order.id }} - {{ (order.order_date|to_wib).strftime('%d %b %Y, %H:%M') }} WIB</h3>
             {% if order.user_keterangan %}
             <div style="margin: 10px 0; padding: 10px; border: 1px dashed #ccc; background-color: #f9f9f9; border-radius: 4px;">
                 <strong>Catatan Pesanan dari Anda:</strong>

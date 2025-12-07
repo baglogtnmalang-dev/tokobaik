@@ -28,7 +28,7 @@
 
         {% for item in orders %}
 <div class="order-card">
-    <h3>Pesanan #{{ item.id }} ({{ item.order_date.strftime('%d %b %Y, %H:%M') }})</h3>
+    <h3>Pesanan #{{ order.id }} - {{ (order.order_date|to_wib).strftime('%d %b %Y, %H:%M') }} WIB</h3>
     <p><strong>Customer:</strong> {{ item.customer_name }}</p>
     <p><strong>Nomor HP:</strong> {{ item.phone_number }}</p>
     
