@@ -9,7 +9,10 @@
     <div class="container">
         <header>
             <h1>Dashboard Admin 🛡️</h1>
-            <p><a href="{{ url_for('index') }}">← Kembali ke Toko</a> | <a href="{{ url_for('add_product') }}">Tambah Produk Baru</a></p>
+            <p>
+                <a href="{{ url_for('index') }}">← Kembali ke Toko</a> | 
+                <a href="{{ url_for('add_product') }}">Tambah Produk Baru</a>
+            </p>
         </header>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -27,68 +30,73 @@
         {% endif %}
 
         {% for item in orders %}
-<div class="order-card">
-    <h3>Pesanan #{{ order.id }} - {{ (order.order_date|to_wib).strftime('%d %b %Y, %H:%M') }} WIB</h3>
-    <p><strong>Customer:</strong> {{ item.customer_name }}</p>
-    <p><strong>Nomor HP:</strong> {{ item.phone_number }}</p>
-    
-    {% if item.user_keterangan %}
-    <div style="margin: 10px 0; padding: 10px; border: 1px dashed #ff9900; background-color: #fffbe6; border-radius: 4px;">
-        <strong>Catatan Pesanan dari Pelanggan:</strong>
-        <p style="white-space: pre-wrap; margin: 5px 0 0 0;">{{ item.user_keterangan }}</p>
-    </div>
-    {% endif %}
+        <div class="order-card">
+            <h3>
+                Pesanan #{{ item.id }} - 
+                {{ (item.order_date|to_wib).strftime('%d %b %Y, %H:%M') }} WIB
+            </h3>
+            <p><strong>Customer:</strong> {{ item.customer_name }}</p>
+            <p><strong>Nomor HP:</strong> {{ item.phone_number }}</p>
+            
+            {% if item.user_keterangan %}
+            <div style="margin: 10px 0; padding: 10px; border: 1px dashed #ff9900; background-color: #fffbe6; border-radius: 4px;">
+                <strong>Catatan Pesanan dari Pelanggan:</strong>
+                <p style="white-space: pre-wrap; margin: 5px 0 0 0;">{{ item.user_keterangan }}</p>
+            </div>
+            {% endif %}
 
-    <h4>Detail Item:</h4>
-    <ul>
-        {% for detail in item.order_items %}
-            <li>
-                {{ detail.name }} ({{ detail.quantity }}x) - Rp {{ "{:,.0f}".format(detail.price * detail.quantity) }}
-                
-                {% if detail.get('keterangan') %}
-                    <small style="color: #666; display: block; margin-left: 15px; font-weight: bold;">
-                        Keterangan Item: {{ detail.get('keterangan') }}
-                    </small>
-                {% endif %}
-            </li>
+            <h4>Detail Item:</h4>
+            <ul>
+                {% for detail in item.order_items %}
+                    <li>
+                        {{ detail.name }} ({{ detail.quantity }}x) - Rp {{ "{:,.0f}".format(detail.price * detail.quantity) }}
+                        
+                        {% if detail.get('keterangan') %}
+                            <small style="color: #666; display: block; margin-left: 15px; font-weight: bold;">
+                                Keterangan Item: {{ detail.get('keterangan') }}
+                            </small>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <p style="font-weight: bold; color: green;">
+                Total Bayar Unik: Rp {{ "{:,.0f}".format(item.total_unique_amount) }}
+            </p>
+            <p><strong>Total Bayar (Non-Unik):</strong> Rp {{ "{:,.0f}".format(item.total_amount) }}</p>
+            <p><strong>Metode Pembayaran:</strong> {{ item.payment_method }}</p>
+            
+            <p>
+                <strong>Status Saat Ini:</strong> 
+                <span style="font-weight: bold; color: {{ 'green' if 'Lunas' in item.payment_status or 'Dikirim' in item.payment_status else 'orange' }};">
+                    {{ item.payment_status }}
+                </span>
+            </p>
+
+            <form method="POST" action="{{ url_for('update_order_status', order_id=item.id) }}" style="margin-top: 10px;">
+                <label for="new_status_{{ item.id }}">Ubah Status:</label>
+                <select name="new_status" id="new_status_{{ item.id }}">
+                    <option value="Menunggu Pembayaran" {% if item.payment_status == 'Menunggu Pembayaran' %}selected{% endif %}>Menunggu Pembayaran</option>
+                    <option value="Pembayaran Diterima" {% if item.payment_status == 'Pembayaran Diterima' %}selected{% endif %}>Pembayaran Diterima</option>
+                    <option value="Sedang Diproses" {% if item.payment_status == 'Sedang Diproses' %}selected{% endif %}>Sedang Diproses</option>
+                    <option value="Dikirim" {% if item.payment_status == 'Dikirim' %}selected{% endif %}>Dikirim</option>
+                    <option value="Selesai (Lunas)" {% if item.payment_status == 'Selesai (Lunas)' %}selected{% endif %}>Selesai (Lunas)</option>
+                    <option value="Dibatalkan" {% if item.payment_status == 'Dibatalkan' %}selected{% endif %}>Dibatalkan</option>
+                </select>
+                <button type="submit" style="background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                    Update
+                </button>
+            </form>
+
+            <form method="POST" action="{{ url_for('delete_order', order_id=item.id) }}"
+                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus pesanan #{{ item.id }} secara permanen? Tindakan ini tidak dapat dibatalkan.');"
+                  style="margin-top: 10px; display: inline-block;">
+                <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                    Hapus Pesanan
+                </button>
+            </form>
+        </div>
         {% endfor %}
-    </ul>
-
-    <p style="font-weight: bold; color: green;">Total Bayar Unik: Rp {{ "{:,.0f}".format(item.total_unique_amount) }}</p>
-    <p><strong>Total Bayar (Non-Unik):</strong> Rp {{ "{:,.0f}".format(item.total_amount) }}</p>
-    <p><strong>Metode Pembayaran:</strong> {{ item.payment_method }}</p>
-    
-    <p>
-        <strong>Status Saat Ini:</strong> 
-        <span style="font-weight: bold; color: {{ 'green' if 'Lunas' in item.payment_status or 'Dikirim' in item.payment_status else 'orange' }};">
-            {{ item.payment_status }}
-        </span>
-    </p>
-
-    <form method="POST" action="{{ url_for('update_order_status', order_id=item.id) }}" style="margin-top: 10px;">
-        <label for="new_status_{{ item.id }}">Ubah Status:</label>
-        <select name="new_status" id="new_status_{{ item.id }}">
-            <option value="Menunggu Pembayaran" {% if item.payment_status == 'Menunggu Pembayaran' %}selected{% endif %}>Menunggu Pembayaran</option>
-            <option value="Pembayaran Diterima" {% if item.payment_status == 'Pembayaran Diterima' %}selected{% endif %}>Pembayaran Diterima</option>
-            <option value="Sedang Diproses" {% if item.payment_status == 'Sedang Diproses' %}selected{% endif %}>Sedang Diproses</option>
-            <option value="Dikirim" {% if item.payment_status == 'Dikirim' %}selected{% endif %}>Dikirim</option>
-            <option value="Selesai (Lunas)" {% if item.payment_status == 'Selesai (Lunas)' %}selected{% endif %}>Selesai (Lunas)</option>
-            <option value="Dibatalkan" {% if item.payment_status == 'Dibatalkan' %}selected{% endif %}>Dibatalkan</option>
-        </select>
-        <button type="submit" style="background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Update</button>
-    </form>
-	<form method="POST" action="{{ url_for('delete_order', order_id=item.id) }}" 
-          onsubmit="return confirm('Apakah Anda yakin ingin menghapus pesanan #{{ item.id }} secara permanen? Tindakan ini tidak dapat dibatalkan.');" 
-          style="margin-top: 10px; display: inline-block;">
-        
-        <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
-            Hapus Pesanan
-        </button>
-    </form>
-</div>
-{% endfor %}
-
-
     </div>
 </body>
 </html>
